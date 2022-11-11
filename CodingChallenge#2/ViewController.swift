@@ -16,7 +16,7 @@ class ViewController: UIViewController {
     
     var dataList: [FakeApiData] = []
     var cachedImages = [UIImage?]()
-    var selectedDataset: FakeApiData?
+    var favorites: [FakeApiData?] = []
     
     
     private let tableView: UITableView = {
@@ -90,6 +90,13 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
         
         cell.contentConfiguration = content
         return cell
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let vc = DetailViewController()
+        vc.data = dataList[indexPath.row]
+        navigationController?.pushViewController(vc, animated: true)
+        
     }
     
     
