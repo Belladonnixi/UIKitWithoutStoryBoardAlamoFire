@@ -15,8 +15,11 @@ import Alamofire
 class ViewController: UIViewController {
     
     var dataList: [FakeApiData] = []
-    var cachedImages = [UIImage?]()
-    var favorites: [FakeApiData?] = []
+    var favoritesList: [FakeApiData] {
+        return self.dataList.filter( { $0.isFavorite } )
+    }
+    var favButtonTapped: Bool = false
+    
     
     
     private let tableView: UITableView = {
@@ -35,10 +38,16 @@ class ViewController: UIViewController {
         fetchFakeApiData()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        tableView.reloadData()
+    }
+    
     override func loadView() {
         super.loadView()
         
         self.title = "CC Api Call"
+        navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action: #selector(showFavs))
+        
         view.backgroundColor = .systemBackground
         view.addSubview(tableView)
         
@@ -55,31 +64,41 @@ class ViewController: UIViewController {
         ])
     }
 
-
+    @objc func showFavs() {
+        favButtonTapped = !favButtonTapped
+        
+        if favButtonTapped {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart.fill"), style: .plain, target: self, action: #selector(showFavs))
+        } else {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "heart"), style: .plain, target: self, action: #selector(showFavs))
+        }
+        tableView.reloadData()
+    }
+    
 }
 
 extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return dataList.count
+        return favButtonTapped ? favoritesList.count : dataList.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
-        let data = dataList[indexPath.row]
+        let data = favButtonTapped ? favoritesList[indexPath.row] : dataList[indexPath.row]
         
         var content = cell.defaultContentConfiguration()
         content.text = data.title
         content.secondaryText = data.url
         
-        if self.cachedImages.indices.contains(indexPath.row) {
-            content.image = self.cachedImages[indexPath.row]
+        if let image = data.cachedImage {
+            content.image = image
         } else {
-            AF.request(data.thumbnailUrl).response{ response in
+            AF.request(data.thumbnailUrl).response { response in
                 switch response.result {
                 case .success(let data):
                     let image = UIImage(data: data!)
-                    self.cachedImages.append(image)
+                    self.dataList[indexPath.row].cachedImage = image
                     tableView.reloadRows(at: [indexPath], with: .none)
                     
                 case .failure(let error):
@@ -94,7 +113,12 @@ extension ViewController: UITableViewDataSource, UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let vc = DetailViewController()
-        vc.data = dataList[indexPath.row]
+        vc.masterVC = self
+        if favButtonTapped {
+            vc.selectedIndex = dataList.firstIndex(where: { $0.id == favoritesList[indexPath.row].id })
+        } else {
+            vc.selectedIndex = indexPath.row
+        }
         navigationController?.pushViewController(vc, animated: true)
         
     }

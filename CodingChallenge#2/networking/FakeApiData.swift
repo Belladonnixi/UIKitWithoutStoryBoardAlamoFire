@@ -10,6 +10,7 @@
 
 
 import Foundation
+import UIKit
 
 struct FakeApiData: Codable {
     let albumId: Int
@@ -17,4 +18,11 @@ struct FakeApiData: Codable {
     let title: String
     let url: String
     let thumbnailUrl: String
+    
+    var cachedImage: UIImage?
+    var isFavorite: Bool = false
+    
+    enum CodingKeys: String, CodingKey {
+        case albumId, id, title, url, thumbnailUrl
+    }
 }
