@@ -34,7 +34,6 @@ class DetailViewController: UIViewController {
         favButton.configuration = .plain()
         favButton.tintColor = .systemPink
         favButton.setTitle("Favorite", for: .normal)
-        favButton.layer.cornerRadius = 5
         return favButton
     }()
     
@@ -85,9 +84,7 @@ class DetailViewController: UIViewController {
             
             favButton.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 20),
             favButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor, constant: 50),
-            favButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor, constant: -50),
-            favButton.heightAnchor.constraint(lessThanOrEqualToConstant: 100),
-            
+            favButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor, constant: -50),            
             
             imageView.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             imageView.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
